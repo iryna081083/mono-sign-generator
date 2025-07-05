@@ -1,0 +1,33 @@
+const crypto = require('crypto');
+const express = require('express');
+const app = express();
+app.use(express.json());
+
+const signKey = '140ba6a9-1fb1-4093-8e04-84b268be597c'; // твій ключ Monobank
+
+app.post('/generate-sign', (req, res) => {
+  const body = JSON.stringify(req.body);
+  const hmac = crypto.createHmac('sha1', signKey);
+  hmac.update(body);
+  const sign = hmac.digest('base64');
+  res.json({ sign });
+});
+
+const port = process.env.PORT || 3000;
+app.listen(port, () => {
+  console.log(`Server running on port ${port}`);
+});
+
+
+
+					
+
+
+
+
+
+
+
+
+
+	
