@@ -4,19 +4,23 @@ const app = express();
 
 app.use(express.json());
 
+const PORT = process.env.PORT || 3000;
 const signKey = '140ba6a9-1fb1-4093-8e04-84b268be597c';
 
-app.post('/generate-sign', (req, res) => {
-  const body = JSON.stringify(req.body);
-  const signature = crypto.createHmac('sha1', signKey).update(body).digest('hex');
-  res.send({ sign: signature });
+app.post('/sign', (req, res) => {
+  const payload = req.body.payload;
+
+  if (!payload) {
+    return res.status(400).json({ error: 'Missing payload' });
+  }
+
+  const hmac = crypto.createHmac('sha256', signKey);
+  hmac.update(payload, 'utf8');
+  const signature = hmac.digest('base64');
+
+  res.json({ signature });
 });
 
-// Додаємо головну сторінку, щоб не було помилки Cannot GET /
-app.get('/', (req, res) => {
-  res.send('Sign generator is running!');
-});
-
-app.listen(3000, () => {
-  console.log('Sign generator is running on port 3000');
+app.listen(PORT, () => {
+  console.log(`Sign generator is running on port ${PORT}`);
 });
